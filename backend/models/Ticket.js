@@ -2,23 +2,29 @@ const mongoose = require("mongoose");
 
 const ticketSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
-    },
-    title: String,
-    description: String,
-    category: String,
-    priority: {
+    title: {
       type: String,
-      enum: ["Low", "Medium", "High"],
-      default: "Low"
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    category: {
+      type: String,
+      enum: ["Technical", "Billing", "General"],
+      default: "General",
     },
     status: {
       type: String,
-      enum: ["Open", "In Progress", "Resolved", "Closed"],
-      default: "Open"
-    }
+      enum: ["Open", "In Progress", "Closed"],
+      default: "Open",
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );
