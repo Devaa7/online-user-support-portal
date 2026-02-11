@@ -1,15 +1,42 @@
 const Ticket = require("../models/Ticket");
 
 // Create Ticket
+// Create Ticket (with auto priority + SLA)
 exports.createTicket = async (req, res) => {
   try {
     const { title, description, category } = req.body;
+
+    // ✅ USP: Auto priority + SLA based on category + keywords
+    const getPriorityAndSla = (category, title = "", description = "") => {
+      const text = `${title} ${description}`.toLowerCase();
+
+      const highKeywords = [
+        "urgent",
+        "error",
+        "crash",
+        "failed",
+        "payment",
+        "login",
+        "security",
+      ];
+      const isHigh = highKeywords.some((k) => text.includes(k));
+
+      if (category === "Technical" || isHigh) return { priority: "High", slaHours: 24 };
+      if (category === "Billing") return { priority: "Medium", slaHours: 36 };
+      return { priority: "Low", slaHours: 48 };
+    };
+
+    const { priority, slaHours } = getPriorityAndSla(category, title, description);
 
     const ticket = await Ticket.create({
       title,
       description,
       category,
+      priority,
+      slaHours,
+      slaDueAt: new Date(Date.now() + slaHours * 60 * 60 * 1000),
       createdBy: req.user._id,
+      status: "Open",
     });
 
     res.status(201).json(ticket);

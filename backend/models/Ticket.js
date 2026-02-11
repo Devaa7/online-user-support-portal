@@ -34,6 +34,9 @@ const ticketSchema = new mongoose.Schema(
       type: Number,
       default: 48,
     },
+  slaDueAt: {
+    type: Date,
+  },
   },
   { timestamps: true }
 );
