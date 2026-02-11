@@ -25,6 +25,15 @@ const ticketSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    priority: {
+      type: String,
+      enum: ["Low", "Medium", "High"],
+      default: "Low",
+    },
+    slaHours: {
+      type: Number,
+      default: 48,
+    },
   },
   { timestamps: true }
 );
