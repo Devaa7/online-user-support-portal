@@ -10,11 +10,23 @@ const ticketSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    roomNumber: {
+  type: String,
+  required: true,
+  trim: true,
+},
     category: {
-      type: String,
-      enum: ["Technical", "Billing", "General"],
-      default: "General",
-    },
+  type: String,
+  enum: [
+    "Electrical",
+    "Plumbing",
+    "WiFi/Network",
+    "Room Damage",
+    "Mess Complaint",
+    "General",
+  ],
+  default: "General",
+},
     status: {
       type: String,
       enum: ["Open", "In Progress", "Closed"],
@@ -37,6 +49,23 @@ const ticketSchema = new mongoose.Schema(
   slaDueAt: {
     type: Date,
   },
+  history: [
+  {
+    status: {
+      type: String,
+      enum: ["Open", "In Progress", "Closed"],
+      required: true,
+    },
+    changedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    note: {
+      type: String,
+      default: "",
+    },
+  },
+],
   },
   { timestamps: true }
 );

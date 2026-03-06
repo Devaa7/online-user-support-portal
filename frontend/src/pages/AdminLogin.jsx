@@ -29,7 +29,7 @@ function AdminLogin() {
   return (
     <div className="container">
       <div className="card">
-        <h2 className="title">Admin Login</h2>
+        <h2 className="title">Admin Login - WeSupport</h2>
         <p className="subtitle">Manage and resolve support tickets.</p>
 
         {error && <div className="msgError">{error}</div>}

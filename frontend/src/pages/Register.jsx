@@ -29,7 +29,7 @@ function Register() {
       <div className="card">
         <div className="headerRow">
           <div>
-            <h2 className="title">Create Account</h2>
+            <h2 className="title">Create Account - WeSupport</h2>
             <p className="subtitle">Register to access the support portal.</p>
           </div>
         </div>
@@ -70,7 +70,7 @@ function Register() {
           </button>
 
           <p className="small">
-            Already have an account? <Link to="/">Login</Link>
+            Already have an account? <Link to="/">Login here</Link>
           </p>
         </form>
       </div>

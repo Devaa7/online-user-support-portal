@@ -1,34 +1,50 @@
 const Ticket = require("../models/Ticket");
 
-// Create Ticket
-// Create Ticket (with auto priority + SLA)
+// Create Ticket (User) - with Room Number + Auto Priority + SLA
 exports.createTicket = async (req, res) => {
   try {
-    const { title, description, category } = req.body;
+    const { roomNumber, title, description, category } = req.body;
 
-    // ✅ USP: Auto priority + SLA based on category + keywords
+    if (!roomNumber) {
+      return res.status(400).json({ message: "Room Number is required" });
+    }
+
+    // Auto Priority + SLA based on category + keywords
     const getPriorityAndSla = (category, title = "", description = "") => {
       const text = `${title} ${description}`.toLowerCase();
 
       const highKeywords = [
         "urgent",
-        "error",
-        "crash",
-        "failed",
-        "payment",
-        "login",
+        "shock",
+        "fire",
+        "leak",
+        "short circuit",
+        "no power",
         "security",
+        "danger",
       ];
       const isHigh = highKeywords.some((k) => text.includes(k));
 
-      if (category === "Technical" || isHigh) return { priority: "High", slaHours: 24 };
-      if (category === "Billing") return { priority: "Medium", slaHours: 36 };
+      // Hostel rules
+      if (category === "Electrical" || category === "Plumbing" || isHigh) {
+        return { priority: "High", slaHours: 24 };
+      }
+
+      if (category === "WiFi/Network" || category === "Room Damage") {
+        return { priority: "Medium", slaHours: 36 };
+      }
+
+      if (category === "Mess Complaint") {
+        return { priority: "Low", slaHours: 48 };
+      }
+
       return { priority: "Low", slaHours: 48 };
     };
 
     const { priority, slaHours } = getPriorityAndSla(category, title, description);
 
     const ticket = await Ticket.create({
+      roomNumber,
       title,
       description,
       category,
@@ -37,6 +53,7 @@ exports.createTicket = async (req, res) => {
       slaDueAt: new Date(Date.now() + slaHours * 60 * 60 * 1000),
       createdBy: req.user._id,
       status: "Open",
+      history: [{ status: "Open", changedAt: new Date(), note: "Ticket created" }],
     });
 
     res.status(201).json(ticket);
@@ -74,7 +91,25 @@ exports.updateTicketStatus = async (req, res) => {
       return res.status(404).json({ message: "Ticket not found" });
     }
 
-    ticket.status = req.body.status || ticket.status;
+    const newStatus = req.body.status;
+
+    // Only update if status actually changed
+    if (newStatus && newStatus !== ticket.status) {
+      ticket.status = newStatus;
+
+      // Ensure history array exists
+      if (!ticket.history) {
+        ticket.history = [];
+      }
+
+      // Push new timeline entry
+      ticket.history.push({
+        status: newStatus,
+        changedAt: new Date(),
+        note: `Status updated to ${newStatus}`,
+      });
+    }
+
     await ticket.save();
 
     res.json({ message: "Ticket updated successfully" });

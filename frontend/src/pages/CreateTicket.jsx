@@ -3,80 +3,92 @@ import API from "../api/api";
 import { useNavigate } from "react-router-dom";
 
 function CreateTicket() {
+  const [roomNumber, setRoomNumber] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("Technical");
-  const [error, setError] = useState("");
+  const [category, setCategory] = useState("General");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     const token = localStorage.getItem("token");
 
     try {
       await API.post(
         "/tickets",
-        { title, description, category },
+        { roomNumber, title, description, category },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
+
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create ticket");
+      alert(err.response?.data?.message || "Failed to create support ticket");
     }
   };
 
   return (
     <div className="container">
       <div className="card">
-        <div className="headerRow">
-          <div>
-            <h2 className="title">Create Ticket</h2>
-            <p className="subtitle">Describe your issue clearly for quick support.</p>
-          </div>
-        </div>
+        <h2 className="title">Raise a Support Ticket</h2>
+        <p className="subtitle">Submit your issue and our team will assist you.</p>
 
-        {error && <div className="msgError">{error}</div>}
-
-        <form className="form" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <input
             className="input"
             type="text"
-            placeholder="Ticket title"
+            placeholder="Room Number (e.g., A-204)"
+            value={roomNumber}
+            onChange={(e) => setRoomNumber(e.target.value)}
+            required
+          />
+          <br />
+          <br />
+
+          <input
+            className="input"
+            type="text"
+            placeholder="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
           />
+          <br />
+          <br />
 
           <textarea
-            className="textarea"
-            placeholder="Describe your issue..."
+            className="input"
+            placeholder="Describe the issue"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
+            rows={4}
           />
+          <br />
+          <br />
 
           <select
             className="select"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
-            <option value="Technical">Technical</option>
-            <option value="Billing">Billing</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="WiFi/Network">WiFi/Network</option>
+            <option value="Room Damage">Room Damage</option>
+            <option value="Mess Complaint">Mess Complaint</option>
             <option value="General">General</option>
           </select>
+          <br />
+          <br />
 
-          <div className="row">
-            <button className="btn btnGhost" type="button" onClick={() => navigate("/dashboard")}>
-              Cancel
-            </button>
-            <button className="btn" type="submit">
-              Submit Ticket
-            </button>
-          </div>
+          <button className="btn" type="submit">
+            Submit Support Ticket
+          </button>
         </form>
       </div>
     </div>

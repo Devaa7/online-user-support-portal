@@ -24,7 +24,7 @@ function Dashboard() {
       const res = await API.get("/tickets/my", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTickets(res.data);
+      setTickets(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       navigate("/");
     } finally {
@@ -41,13 +41,18 @@ function Dashboard() {
       <div className="cardWide">
         <div className="headerRow">
           <div>
-            <h2 className="title">My Tickets</h2>
-            <p className="subtitle">Track your issues and their current status.</p>
+            <h2 className="title">My Support Tickets</h2>
+            <p className="subtitle">
+              Track your submitted support requests and their current status.
+            </p>
           </div>
 
-          <div className="row" style={{ maxWidth: 340 }}>
-            <button className="btn btnGhost" onClick={() => navigate("/create-ticket")}>
-              + New Ticket
+          <div className="row" style={{ maxWidth: 380 }}>
+            <button
+              className="btn btnGhost"
+              onClick={() => navigate("/create-ticket")}
+            >
+              + Raise Support Ticket
             </button>
 
             <button
@@ -62,10 +67,36 @@ function Dashboard() {
           </div>
         </div>
 
-        {loading && <p className="small">Loading tickets...</p>}
+        {/* ✅ Status Legend (clarity for reviewers) */}
+        <div className="ticketCard" style={{ marginBottom: 16 }}>
+          <h3 style={{ margin: 0, fontSize: 16 }}>Status Legend</h3>
+
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              flexWrap: "wrap",
+              marginTop: 10,
+            }}
+          >
+            <span className="badge badgeOpen">Open = Received</span>
+            <span className="badge badgeInProgress">In Progress = Working</span>
+            <span className="badge badgeClosed">Closed = Resolved</span>
+          </div>
+
+          <p className="small" style={{ marginTop: 10, opacity: 0.9 }}>
+            Tip: Create a support ticket for any issue. Admin will update the
+            status as work progresses.
+          </p>
+        </div>
+
+        {loading && <p className="small">Loading support tickets...</p>}
 
         {!loading && tickets.length === 0 && (
-          <p className="small">No tickets yet. Create your first ticket.</p>
+          <p className="small">
+            No support tickets yet. Click <b>Raise Support Ticket</b> to create
+            your first request.
+          </p>
         )}
 
         <div className="ticketGrid">
@@ -75,11 +106,21 @@ function Dashboard() {
                 <h3 style={{ margin: 0, fontSize: 16 }}>{t.title}</h3>
                 <span className={badgeClass(t.status)}>{t.status}</span>
               </div>
+
+              <p className="small" style={{ marginTop: 6, opacity: 0.9 }}>
+                <b>Ticket ID:</b> {t._id}
+              </p>
+
+              <p className="small" style={{ marginTop: 6, opacity: 0.9 }}>
+                <b>Room:</b> {t.roomNumber || "—"}
+              </p>
+
               <p className="small" style={{ marginTop: 0 }}>
                 {t.description}
               </p>
+
               <p className="small">
-                Category: <b>{t.category}</b>
+                <b>Category:</b> {t.category || "General"}
               </p>
             </div>
           ))}
