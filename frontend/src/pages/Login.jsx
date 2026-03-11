@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import API from "../api/api";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -19,6 +19,7 @@ function Login() {
     try {
       const res = await API.post("/auth/login", { email, password });
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
@@ -27,12 +28,15 @@ function Login() {
 
   return (
     <div className="container">
-      <div className="card">
+      <div className="card authCard">
         <div className="headerRow">
           <div>
             <h2 className="title">User Login – WeSupport</h2>
 <p className="subtitle">
-  Login to raise and track your <b>Support Requests</b>.
+  Green Valley Hostel Support Portal
+</p>
+<p className="small" style={{ marginTop: 6, opacity: 0.85 }}>
+  Raise support requests for room maintenance, electrical, plumbing, WiFi, and mess-related issues.
 </p>
           </div>
         </div>
@@ -69,9 +73,7 @@ function Login() {
           >
             Create new account
           </button>
-          <p className="small" style={{ marginTop: 10, opacity: 0.9 }}>
-  This portal helps users submit issues and track resolution updates.
-</p>
+
           <div style={{ textAlign: "center", marginTop: 20 }}>
   <span className="small" style={{ opacity: 0.9 }}>
     New user?
@@ -88,17 +90,17 @@ function Login() {
   </Link>
 </div>
         </form>
-        <div className="ticketCard" style={{ marginTop: 16 }}>
+        <div className="ticketCard sectionCard" style={{ marginTop: 16 }}>
   <h3 style={{ margin: 0, fontSize: 16 }}>How WeSupport Works</h3>
   <ol className="small" style={{ marginTop: 10, lineHeight: 1.8 }}>
     <li>Login / Register</li>
-    <li>Raise a <b>Support Request</b> (issue details)</li>
-    <li>Admin reviews and updates the status</li>
-    <li>Track progress + SLA time remaining</li>
+    <li>Raise a <b>maintenance request</b> (room, category, issue details)</li>
+    <li>Admin reviews and updates the request status</li>
+    <li>Track progress and SLA time remaining</li>
   </ol>
 
   <p className="small" style={{ marginTop: 10, opacity: 0.9 }}>
-    Status meaning: <b>Open</b> = received, <b>In Progress</b> = working, <b>Closed</b> = resolved.
+    Status meaning: <b>Open</b> = request received, <b>In Progress</b> = team is working, <b>Closed</b> = request resolved.
   </p>
 </div>
       </div>
@@ -107,3 +109,5 @@ function Login() {
 }
 
 export default Login;
+
+

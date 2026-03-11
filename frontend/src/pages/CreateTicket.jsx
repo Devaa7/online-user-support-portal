@@ -1,8 +1,9 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
 
 function CreateTicket() {
+  const [block, setBlock] = useState("A");
   const [roomNumber, setRoomNumber] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -13,11 +14,28 @@ function CreateTicket() {
     e.preventDefault();
 
     const token = localStorage.getItem("token");
+    const parsedRoom = Number(roomNumber);
+    const validBlocks = ["A", "B", "C", "D", "E", "F"];
+
+    if (!validBlocks.includes(block)) {
+      alert("Please select a valid block (A-F).");
+      return;
+    }
+
+    if (!Number.isInteger(parsedRoom)) {
+      alert("Room Number must be numeric.");
+      return;
+    }
+
+    if (parsedRoom < 1 || parsedRoom > 200) {
+      alert("Room Number must be between 1 and 200.");
+      return;
+    }
 
     try {
       await API.post(
         "/tickets",
-        { roomNumber, title, description, category },
+        { block, roomNumber: parsedRoom, title, description, category },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -27,27 +45,45 @@ function CreateTicket() {
 
       navigate("/dashboard");
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to create support ticket");
+      alert(err.response?.data?.message || "Failed to submit support request");
     }
   };
 
   return (
-    <div className="container">
-      <div className="card">
-        <h2 className="title">Raise a Support Ticket</h2>
-        <p className="subtitle">Submit your issue and our team will assist you.</p>
+    <div className="container pageShell">
+      <div className="card formCard">
+        <h2 className="title">Create New Request</h2>
+        <p className="subtitle">Submit a support request for your room or hostel facilities.</p>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            className="input"
-            type="text"
-            placeholder="Room Number (e.g., A-204)"
-            value={roomNumber}
-            onChange={(e) => setRoomNumber(e.target.value)}
-            required
-          />
-          <br />
-          <br />
+        <form className="form" onSubmit={handleSubmit}>
+          <p className="small">Request Details</p>
+          <div className="row" style={{ flexWrap: "wrap" }}>
+            <select
+              className="select"
+              value={block}
+              onChange={(e) => setBlock(e.target.value)}
+              required
+            >
+              <option value="A">Block A</option>
+              <option value="B">Block B</option>
+              <option value="C">Block C</option>
+              <option value="D">Block D</option>
+              <option value="E">Block E</option>
+              <option value="F">Block F</option>
+            </select>
+
+            <input
+              className="input"
+              type="number"
+              placeholder="Room Number (1-200)"
+              value={roomNumber}
+              onChange={(e) => setRoomNumber(e.target.value)}
+              min={1}
+              max={200}
+              step={1}
+              required
+            />
+          </div>
 
           <input
             className="input"
@@ -57,8 +93,6 @@ function CreateTicket() {
             onChange={(e) => setTitle(e.target.value)}
             required
           />
-          <br />
-          <br />
 
           <textarea
             className="input"
@@ -68,8 +102,6 @@ function CreateTicket() {
             required
             rows={4}
           />
-          <br />
-          <br />
 
           <select
             className="select"
@@ -83,11 +115,9 @@ function CreateTicket() {
             <option value="Mess Complaint">Mess Complaint</option>
             <option value="General">General</option>
           </select>
-          <br />
-          <br />
 
           <button className="btn" type="submit">
-            Submit Support Ticket
+            Submit Request
           </button>
         </form>
       </div>
@@ -96,3 +126,4 @@ function CreateTicket() {
 }
 
 export default CreateTicket;
+

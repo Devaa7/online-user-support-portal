@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
 
@@ -8,10 +8,16 @@ function badgeClass(status) {
   return "badge badgeClosed";
 }
 
+function formatRoomLabel(ticket) {
+  if (!ticket?.block) return `Block: N/A - Room ${ticket?.roomNumber || "N/A"}`;
+  return `Block ${ticket.block} - Room ${ticket?.roomNumber || "N/A"}`;
+}
+
 function Dashboard() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const fetchTickets = async () => {
     const token = localStorage.getItem("token");
@@ -37,28 +43,39 @@ function Dashboard() {
   }, []);
 
   return (
-    <div className="container">
+    <div className="container pageShell">
       <div className="cardWide">
         <div className="headerRow">
           <div>
-            <h2 className="title">My Support Tickets</h2>
+            <h2 className="title">My Maintenance Requests</h2>
             <p className="subtitle">
-              Track your submitted support requests and their current status.
+              Track the status of your hostel maintenance requests.
             </p>
           </div>
 
-          <div className="row" style={{ maxWidth: 380 }}>
+          <div className="headerActions">
+            <div className="profileCard">
+              <div className="profileAvatar">
+                {(user?.name?.[0] || "U").toUpperCase()}
+              </div>
+              <div className="profileInfo">
+                <div className="profileName">{user?.name || "User"}</div>
+                <div className="profileEmail">{user?.email || "No email"}</div>
+              </div>
+            </div>
+
             <button
               className="btn btnGhost"
               onClick={() => navigate("/create-ticket")}
             >
-              + Raise Support Ticket
+              + Create New Request
             </button>
 
             <button
               className="btn btnGhost"
               onClick={() => {
                 localStorage.removeItem("token");
+                localStorage.removeItem("user");
                 navigate("/");
               }}
             >
@@ -67,9 +84,9 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* ✅ Status Legend (clarity for reviewers) */}
-        <div className="ticketCard" style={{ marginBottom: 16 }}>
-          <h3 style={{ margin: 0, fontSize: 16 }}>Status Legend</h3>
+        {/* âœ… Status Legend (clarity for reviewers) */}
+        <div className="ticketCard sectionCard" style={{ marginBottom: 16 }}>
+          <h3 style={{ margin: 0, fontSize: 16 }}>Request Status Legend</h3>
 
           <div
             style={{
@@ -79,41 +96,42 @@ function Dashboard() {
               marginTop: 10,
             }}
           >
-            <span className="badge badgeOpen">Open = Received</span>
-            <span className="badge badgeInProgress">In Progress = Working</span>
-            <span className="badge badgeClosed">Closed = Resolved</span>
+            <span className="badge badgeOpen">Open = Request received</span>
+            <span className="badge badgeInProgress">In Progress = Team is working</span>
+            <span className="badge badgeClosed">Closed = Request resolved</span>
           </div>
 
           <p className="small" style={{ marginTop: 10, opacity: 0.9 }}>
-            Tip: Create a support ticket for any issue. Admin will update the
-            status as work progresses.
+            Raise a support request for any hostel-related issue such as room maintenance,
+            electrical fault, plumbing issue, WiFi/network problem, or mess complaint.
           </p>
         </div>
 
-        {loading && <p className="small">Loading support tickets...</p>}
+        {loading && <p className="small">Loading support requests...</p>}
 
         {!loading && tickets.length === 0 && (
           <p className="small">
-            No support tickets yet. Click <b>Raise Support Ticket</b> to create
-            your first request.
+            No maintenance requests yet. Create your first request.
           </p>
         )}
 
         <div className="ticketGrid">
           {tickets.map((t) => (
-            <div className="ticketCard" key={t._id}>
+            <div className="ticketCard requestCard" key={t._id}>
               <div className="headerRow" style={{ marginBottom: 8 }}>
                 <h3 style={{ margin: 0, fontSize: 16 }}>{t.title}</h3>
                 <span className={badgeClass(t.status)}>{t.status}</span>
               </div>
 
-              <p className="small" style={{ marginTop: 6, opacity: 0.9 }}>
-                <b>Ticket ID:</b> {t._id}
-              </p>
+              <div className="requestMeta">
+                <p className="small" style={{ marginTop: 6, opacity: 0.9 }}>
+                  <b>Request ID:</b> {t._id}
+                </p>
 
-              <p className="small" style={{ marginTop: 6, opacity: 0.9 }}>
-                <b>Room:</b> {t.roomNumber || "—"}
-              </p>
+                <p className="small" style={{ marginTop: 6, opacity: 0.9 }}>
+                  <b>Room:</b> {formatRoomLabel(t)}
+                </p>
+              </div>
 
               <p className="small" style={{ marginTop: 0 }}>
                 {t.description}
@@ -131,3 +149,5 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
+

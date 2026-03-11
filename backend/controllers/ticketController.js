@@ -3,10 +3,29 @@ const Ticket = require("../models/Ticket");
 // Create Ticket (User) - with Room Number + Auto Priority + SLA
 exports.createTicket = async (req, res) => {
   try {
-    const { roomNumber, title, description, category } = req.body;
+    const { block, roomNumber, title, description, category } = req.body;
+    const validBlocks = ["A", "B", "C", "D", "E", "F"];
+    const normalizedBlock = String(block || "").trim().toUpperCase();
 
-    if (!roomNumber) {
+    if (!normalizedBlock) {
+      return res.status(400).json({ message: "Block is required" });
+    }
+
+    if (!validBlocks.includes(normalizedBlock)) {
+      return res.status(400).json({ message: "Invalid block. Allowed blocks are A-F" });
+    }
+
+    if (roomNumber === undefined || roomNumber === null || roomNumber === "") {
       return res.status(400).json({ message: "Room Number is required" });
+    }
+
+    const normalizedRoomNumber = Number(roomNumber);
+    if (!Number.isInteger(normalizedRoomNumber)) {
+      return res.status(400).json({ message: "Room Number must be numeric" });
+    }
+
+    if (normalizedRoomNumber < 1 || normalizedRoomNumber > 200) {
+      return res.status(400).json({ message: "Room Number must be between 1 and 200" });
     }
 
     // Auto Priority + SLA based on category + keywords
@@ -44,7 +63,8 @@ exports.createTicket = async (req, res) => {
     const { priority, slaHours } = getPriorityAndSla(category, title, description);
 
     const ticket = await Ticket.create({
-      roomNumber,
+      block: normalizedBlock,
+      roomNumber: String(normalizedRoomNumber),
       title,
       description,
       category,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import API from "../api/api";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -26,11 +26,14 @@ function Register() {
 
   return (
     <div className="container">
-      <div className="card">
+      <div className="card authCard">
         <div className="headerRow">
           <div>
-            <h2 className="title">Create Account - WeSupport</h2>
-            <p className="subtitle">Register to access the support portal.</p>
+            <h2 className="title">Create Account – WeSupport</h2>
+            <p className="subtitle">Register for Green Valley Hostel Support Portal</p>
+            <p className="small" style={{ marginTop: 6, opacity: 0.85 }}>
+              Create your account to submit and track hostel maintenance support requests.
+            </p>
           </div>
         </div>
 
@@ -79,3 +82,5 @@ function Register() {
 }
 
 export default Register;
+
+

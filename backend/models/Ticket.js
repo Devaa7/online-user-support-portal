@@ -2,6 +2,13 @@ const mongoose = require("mongoose");
 
 const ticketSchema = new mongoose.Schema(
   {
+    block: {
+      type: String,
+      enum: ["A", "B", "C", "D", "E", "F"],
+      required: function () {
+        return this.isNew;
+      },
+    },
     title: {
       type: String,
       required: true,
@@ -11,10 +18,20 @@ const ticketSchema = new mongoose.Schema(
       required: true,
     },
     roomNumber: {
-  type: String,
-  required: true,
-  trim: true,
-},
+      type: String,
+      trim: true,
+      required: function () {
+        return this.isNew;
+      },
+      validate: {
+        validator: function (value) {
+          if (!this.isNew && !this.isModified("roomNumber")) return true;
+          const num = Number(value);
+          return Number.isInteger(num) && num >= 1 && num <= 200;
+        },
+        message: "Room number must be a number between 1 and 200",
+      },
+    },
     category: {
   type: String,
   enum: [

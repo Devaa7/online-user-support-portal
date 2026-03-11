@@ -23,7 +23,16 @@ exports.adminLogin = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({ message: "Admin login successful", token });
+    res.json({
+      message: "Admin login successful",
+      token,
+      admin: {
+        id: admin._id,
+        email: admin.email,
+        role: "admin",
+        name: admin.name || "Warden Admin",
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

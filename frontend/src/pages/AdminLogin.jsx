@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
 
@@ -20,6 +20,7 @@ function AdminLogin() {
     try {
       const res = await API.post("/admin/login", { email, password });
       localStorage.setItem("adminToken", res.data.token);
+      localStorage.setItem("admin", JSON.stringify(res.data.admin));
       navigate("/admin/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Admin login failed");
@@ -28,9 +29,12 @@ function AdminLogin() {
 
   return (
     <div className="container">
-      <div className="card">
-        <h2 className="title">Admin Login - WeSupport</h2>
-        <p className="subtitle">Manage and resolve support tickets.</p>
+      <div className="card authCard">
+        <h2 className="title">Admin Login – WeSupport</h2>
+        <p className="subtitle">Green Valley Hostel Administration Portal</p>
+        <p className="small" style={{ marginTop: 6, opacity: 0.85 }}>
+          Admins can monitor, update, and resolve hostel maintenance and support requests.
+        </p>
 
         {error && <div className="msgError">{error}</div>}
 
@@ -63,3 +67,5 @@ function AdminLogin() {
 }
 
 export default AdminLogin;
+
+
